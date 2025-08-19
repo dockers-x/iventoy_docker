@@ -12,7 +12,7 @@ permissions:
 
 env:
     DOCKER_HUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    REGISTRY_IMAGE: virtualhere-server
+    REGISTRY_IMAGE: iventoy
 
 jobs:
     build:
@@ -74,7 +74,6 @@ jobs:
                   push: ${{ github.event_name != 'pull_request' }}
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
-                  # 新增：传递构建参数
                   build-args: |
                       IVENTOY_VERSION=${{ steps.version.outputs.iventoy_version }}
                   cache-from: type=gha
