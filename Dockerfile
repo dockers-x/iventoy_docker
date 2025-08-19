@@ -1,15 +1,18 @@
 FROM debian:bookworm-slim
-MAINTAINER czytcn@gmail.com
+LABEL maintainer="czytcn@gmail.com"
 
-ENV DEBIANFRONTEND=noninteractive
-ARG IVENTOY_VERSION=1.0.21
+ENV DEBIAN_FRONTEND=noninteractive
+ARG IVENTOY_VERSION
+ENV IVENTOY_VERSION=${IVENTOY_VERSION:-1.0.21}
 
-RUN apt update -y && apt install -y --no-install-recommends curl supervisor libglib2.0-dev libevent-dev libwim-dev
+RUN apt update -y && apt install -y --no-install-recommends curl supervisor libglib2.0-dev libevent-dev libwim-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN curl -kL https://github.com/ventoy/PXE/releases/download/v${IVENTOY_VERSION}/iventoy-${IVENTOY_VERSION}-linux-free.tar.gz -o /tmp/iventoy.tar.gz && \
     tar -xvzf /tmp/iventoy.tar.gz -C / && \
     mv /iventoy-${IVENTOY_VERSION} /iventoy && \
-    mkdir -p /var/log/supervisor
+    mkdir -p /var/log/supervisor && \
+    rm -f /tmp/iventoy.tar.gz
 
 COPY files/supervisord.conf /etc/supervisor/supervisord.conf
 

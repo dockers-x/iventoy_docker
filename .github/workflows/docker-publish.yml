@@ -12,7 +12,7 @@ permissions:
 
 env:
     DOCKER_HUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    REGISTRY_IMAGE: iventoy
+    REGISTRY_IMAGE: virtualhere-server
 
 jobs:
     build:
@@ -39,6 +39,17 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
+            - name: Extract version from tag
+              id: version
+              run: |
+                  if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+                    VERSION=${GITHUB_REF#refs/tags/}
+                    VERSION=${VERSION#v}
+                    echo "iventoy_version=${VERSION}" >> $GITHUB_OUTPUT
+                  else
+                    echo "iventoy_version=1.0.21" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Extract metadata
               id: meta
               uses: docker/metadata-action@v5
@@ -63,6 +74,9 @@ jobs:
                   push: ${{ github.event_name != 'pull_request' }}
                   tags: ${{ steps.meta.outputs.tags }}
                   labels: ${{ steps.meta.outputs.labels }}
+                  # 新增：传递构建参数
+                  build-args: |
+                      IVENTOY_VERSION=${{ steps.version.outputs.iventoy_version }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
